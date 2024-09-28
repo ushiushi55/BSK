@@ -8,24 +8,42 @@
 
 <body>
 	<h1>XXXX</h1>
-	<button onclick="clicked(this);">ボタン</button>
-	<span id="output"></span>
+	<button onclick="clicked1(this, 'output1');" id="button1">start</button>
+	<button onclick="clicked2(this, 'output2');" id="button2">stop</button>
+	<span id="output1"></span>
+	<span id="output2"></span>
 	<script>
-		function clicked(button) {
+		timerId = null;
+		function clicked1(button, str) {
 			button.disabled = true;
-			const output = document.getElementById("output");
+			// button.disabled = false;
+			const output = document.getElementById(str);
 			let i = 0;
+			play();
 			output.innerHTML = i;
-			const timerId = setInterval(() => {
+			timerId = setInterval(() => {
 				if (++i < 10) {
+					play();
 					output.innerHTML = i;
 				} else {
 					clearInterval(timerId); // 定期実行の終了
+					timerId = null;
 					button.disabled = false;
 				}
 			}, 1000); // 1秒おきに実行
 		}
-	</script>
+		function clicked2(button, str) {
+			const output = document.getElementById(str);
+			output.innerHTML = "stop1";
+			if (timerId) {
+				clearInterval(timerId);
+				timerId = null;
+				const button1 = document.getElementById("button1");
+				button1.disabled = false;
+			}
+			// button.disabled = true;
+		}
+		</script>
 	<h1>音を鳴らす</h1>
 	<button onclick="play();">play</button>
 	<script>
@@ -34,7 +52,9 @@
 			const oscillator = ctx.createOscillator();
 			let current_time = ctx.currentTime;
 
-			const freqAndTime = [[400, 1], [300, 2]];
+			// const freqAndTime = [[400, 1], [300, 2]];
+			// const freqAndTime = [[2500, 0.1], [0, 0.1], [2500, 0.1]];
+			const freqAndTime = [[2500, 0.1]];
 			for (const [freq, time] of freqAndTime) {
 				oscillator.frequency.setValueAtTime(freq, current_time);
 				current_time += time;
