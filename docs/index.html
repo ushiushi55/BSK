@@ -3,21 +3,29 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>ページタイトル</title>
-	<style>
-		/* CSSを書くところ */
-		h1 {
-			color: blue;
-		}
-	</style>
+	<title>音を鳴らす</title>
 </head>
 
 <body>
-	<!-- 実際に表示される領域 -->
-	<h1>Hello Html</h1>
+	<h1>音を鳴らす</h1>
+	<button onclick="play();">play</button>
 	<script>
-		// JavaScriptを書くところ
-		console.log("Hello JavaScript");
+		function play() {
+			const ctx = new AudioContext();
+			const oscillator = ctx.createOscillator();
+			let current_time = ctx.currentTime;
+
+			const freqAndTime = [[400, 1], [300, 2]];
+			for (const [freq, time] of freqAndTime) {
+				oscillator.frequency.setValueAtTime(freq, current_time);
+				current_time += time;
+			}
+
+			oscillator.connect(ctx.destination);
+			oscillator.start(ctx.currentTime);
+			oscillator.stop(current_time);
+		}
+		window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	</script>
 </body>
 
