@@ -10,20 +10,37 @@
 	<h1>Set sound frequency</h1>
 	<p><button onclick="play();">play</button></p>
 	<p><input id="input_freq" value="2000">[Hz]</p>
+	<p><input id="input_span" value="0.1">[sec]</p>
 	<script>
+		let ctx;
+		let oscillator;
+		//　https://qiita.com/birdwatcher/items/db81e4ef637d29d7d193
+		//　view-source:https://okumuralab.org/~okumura/javascript/sound.html
 		function play() {
 			const input_freq = parseFloat(document.getElementById("input_freq").value);
+			const input_span = parseFloat(document.getElementById("input_span").value);
 			console.log('input_freq : ' + input_freq + ' : ' + typeof(input_freq));
-			const ctx = new AudioContext();
-			const oscillator = ctx.createOscillator();
+			console.log('input_span : ' + input_span + ' : ' + typeof(input_span));
+
+			if (!ctx) {
+				ctx = new AudioContext();
+			}
+			if (oscillator) {
+				oscillator.stop();
+				oscillator.disconnect();
+			}
+			oscillator = ctx.createOscillator();
+
 			let current_time = ctx.currentTime;
 
 			// const freqAndTime = [[400, 1], [300, 2]];
 			// const freqAndTime = [[2500, 0.1], [0, 0.1], [2500, 0.1]];
-			const freqAndTime = [[input_freq, 0.1]];
+			// const freqAndTime = [[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],[input_freq, input_span],[0, input_span],];
+			const freqAndTime = [[input_freq, input_span],];
 			for (const [freq, time] of freqAndTime) {
 				oscillator.frequency.setValueAtTime(freq, current_time);
 				current_time += time;
+				console.log('current_time : ' + current_time + ' : ' + typeof(current_time));
 			}
 
 			oscillator.connect(ctx.destination);
@@ -66,6 +83,44 @@
 			}
 		}
 	</script>
-</body>
+	<h1>Start static interval timer</h1>
+	<p><button onclick="Interval_static(this);" id="Interval_static">start</button></p>
+	<p><input id="input_interval_static" value="1.0"> [sec]</p>
+	<script>
+		let canceled_static = false; // キャンセルフラグ
+		async function Interval_static(button) {
+			if (button.textContent == 'start') {
+				button.textContent = "stop";
+				canceled_static = false;
 
+				const input_interval_static = parseFloat(document.getElementById("input_interval_static").value);
+				console.log('input_interval_static : ' + input_interval_static + ' : ' + typeof(input_interval_static));
+				while (true) {
+					play();
+					await sleep(input_interval_static * 1000)
+					if (canceled_static) break;
+					// break
+				}
+			}
+			else if (button.textContent == 'stop') {
+				button.textContent = "start";
+				canceled_static = true;
+			}
+		}
+	</script>
+	<h1>Debug await sleep</h1>
+	<button onclick="Count_up(this);">start</button>
+	<span id="output_Count_up"></span>
+	<script>
+		async function Count_up(button) {
+			button.disabled = true; // 処理中はボタンを無効化
+			const output = document.getElementById("output_Count_up");
+			for (let i = 0; i < 10; ++i) {
+				output.innerHTML = i;
+				await sleep(1000); // 1秒待機
+			}
+			button.disabled = false;
+		}
+	</script>
+</body>
 </html>

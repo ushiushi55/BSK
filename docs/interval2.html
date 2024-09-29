@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Random interval timer</title>
+</head>
+
+<body>
+    <h1>Start random interval timer</h1>
+    <p><button onclick="Interval(this);" id="Interval">start</button></p>
+    <p>interval : min <input id="input_interval_min1" value="0.5"> [sec] | max <input id="input_interval_max1" value="1.0"> [sec]</p>
+    <p>sound : freq <input id="input_freq1" value="3135.92">[Hz] | span <input id="input_span1" value="0.1">[sec] | rate <input id="input_rate1" value="1"></p>
+    <p>sound : freq <input id="input_freq2" value="659.25" >[Hz] | span <input id="input_span2" value="0.2">[sec] | rate <input id="input_rate2" value="1"></p>
+    <p>sound : freq <input id="input_freq3" value="261.63" >[Hz] | span <input id="input_span3" value="0.3">[sec] | rate <input id="input_rate3" value="0"></p>
+    <p>sound : freq <input id="input_freq4" value="146.835">[Hz] | span <input id="input_span4" value="0.4">[sec] | rate <input id="input_rate4" value="0"></p>
+
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        let ctx;
+        let oscillator;
+        function play(input_freq, input_span) {
+            if (!ctx) {
+                ctx = new AudioContext();
+            }
+            if (oscillator) {
+                oscillator.stop();
+                oscillator.disconnect();
+            }
+            oscillator = ctx.createOscillator();
+
+            let current_time = ctx.currentTime;
+
+            const freqAndTime = [[input_freq, input_span],];
+            for (const [freq, time] of freqAndTime) {
+                oscillator.frequency.setValueAtTime(freq, current_time);
+                current_time += time;
+                console.log('current_time : ' + current_time + ' : ' + typeof(current_time));
+            }
+
+            oscillator.connect(ctx.destination);
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(current_time);
+        }
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+        let canceled = false;
+        async function Interval(button) {
+            const input_interval_min = parseFloat(document.getElementById("input_interval_min1").value);
+            const input_interval_max = parseFloat(document.getElementById("input_interval_max1").value);
+            console.log('input_interval_min : ' + input_interval_min + ' : ' + typeof(input_interval_min));
+            console.log('input_interval_max : ' + input_interval_max + ' : ' + typeof(input_interval_max));
+
+            const input_freq1 = parseFloat(document.getElementById("input_freq1").value);
+            const input_span1 = parseFloat(document.getElementById("input_span1").value);
+            const input_rate1 = parseFloat(document.getElementById("input_rate1").value);
+            console.log('input_freq1 : ' + input_freq1 + ' : ' + typeof(input_freq1));
+            console.log('input_span1 : ' + input_span1 + ' : ' + typeof(input_span1));
+            console.log('input_rate1 : ' + input_rate1 + ' : ' + typeof(input_rate1));
+
+            const input_freq2 = parseFloat(document.getElementById("input_freq2").value);
+            const input_span2 = parseFloat(document.getElementById("input_span2").value);
+            const input_rate2 = parseFloat(document.getElementById("input_rate2").value);
+            console.log('input_freq2 : ' + input_freq2 + ' : ' + typeof(input_freq2));
+            console.log('input_span2 : ' + input_span2 + ' : ' + typeof(input_span2));
+            console.log('input_rate2 : ' + input_rate2 + ' : ' + typeof(input_rate2));
+
+            const input_freq3 = parseFloat(document.getElementById("input_freq3").value);
+            const input_span3 = parseFloat(document.getElementById("input_span3").value);
+            const input_rate3 = parseFloat(document.getElementById("input_rate3").value);
+            console.log('input_freq3 : ' + input_freq3 + ' : ' + typeof(input_freq3));
+            console.log('input_span3 : ' + input_span3 + ' : ' + typeof(input_span3));
+            console.log('input_rate3 : ' + input_rate3 + ' : ' + typeof(input_rate3));
+
+            const input_freq4 = parseFloat(document.getElementById("input_freq4").value);
+            const input_span4 = parseFloat(document.getElementById("input_span4").value);
+            const input_rate4 = parseFloat(document.getElementById("input_rate4").value);
+            console.log('input_freq4 : ' + input_freq4 + ' : ' + typeof(input_freq4));
+            console.log('input_span4 : ' + input_span4 + ' : ' + typeof(input_span4));
+            console.log('input_rate4 : ' + input_rate4 + ' : ' + typeof(input_rate4));
+
+            const ttl_rate = input_rate1 + input_rate2 + input_rate3 + input_rate4;
+
+            if (button.textContent == 'start') {
+                button.textContent = "stop";
+                canceled = false;
+
+                while (true) {
+                    let random_rate = Math.random()*ttl_rate;
+                    console.log('random_idx : ' + random_rate + ' : ' + typeof(random_rate));
+                    if (random_rate < input_rate1) {
+                        play(input_freq1, input_span1);
+                    }
+                    else if (random_rate < input_rate1 + input_rate2) {
+                        play(input_freq2, input_span2);
+                    }
+                    else if (random_rate < input_rate1 + input_rate2 + input_rate3) {
+                        play(input_freq3, input_span3);
+                    }
+                    else {
+                        play(input_freq4, input_span4);
+                    }
+                    let random_gain = Math.random()
+                    console.log('random_gain : ' + random_gain + ' : ' + typeof(random_gain));
+                    let interval = random_gain * (input_interval_max - input_interval_min) + input_interval_min
+                    console.log('interval : ' + interval + ' : ' + typeof(interval));
+                    await sleep(interval * 1000)
+                    if (canceled) break;
+                    // break
+                }
+            }
+            else if (button.textContent == 'stop') {
+                button.textContent = "start";
+                canceled = true;
+            }
+        }
+    </script>
+</body>
+</html>
